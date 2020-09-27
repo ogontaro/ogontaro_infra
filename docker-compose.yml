@@ -9,6 +9,8 @@ services:
       default:
       macvlan:
         ipv4_address: 192.168.18.199
+    env_file:
+      - .env
     ports:
       # The HTTP port
       - "80:80"
@@ -25,6 +27,7 @@ services:
   traefik-certs-dumper:
     container_name: ogontaro_certs-dumper
     image: ldez/traefik-certs-dumper:v2.7.0
+    restart: unless-stopped
     entrypoint: sh -c 'apk add jq ; while ! [ -e /data/acme.json ] || ! [ `jq ".Certificates | length" /data/acme.json` != 0 ]; do sleep 1 ; done && traefik-certs-dumper file --watch --version v2 --source /data/acme.json --dest /data/certs-dump'
     depends_on:
       - traefik
