@@ -1,31 +1,22 @@
 version: "3.8"
 
 services:
-  rancher:
-    container_name: ogontaro_rancher
-    image: rancher/rancher:v2.4.8
-    restart: unless-stopped
-    volumes:
-      - ./containers/rancher/volume:/var/lib/rancher
-    labels:
-      - traefik.http.routers.rancher.rule=Host(`rancher.ogontaro.com`)
-      - traefik.http.services.rancher.loadbalancer.server.port=80
-      - ./containers/certs/certs-dump/ogontaro.com.crt:/etc/rancher/ssl/cert.pem
-      - ./containers/certs/certs-dump/ogontaro.com.key:/etc/rancher/ssl/key.pem
-      - ./containers/certs/certs-dump/letsencrypt.key:/etc/rancher/ssl/cacerts.pem
-
-  reverse-proxy:
-    container_name: ogontaro_reverser_proxy
+  traefik:
+    container_name: ogontaro_traefik
     image: traefik:v2.3
     restart: unless-stopped
+    networks:
+      default:
+      macvlan:
+        ipv4_address: 192.168.18.199
     ports:
       # The HTTP port
-      - 80:80
-      - 443:443
+      - "80:80"
+      - "443:443"
       # SSH port
-      - 22:22
+      - "2222:22"
       # The Web UI (enabled by --api.insecure=true)
-      - 8080:8080
+      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./containers/traefik/traefik.yml:/etc/traefik/traefik.yml
@@ -35,5 +26,32 @@ services:
     container_name: ogontaro_certs-dumper
     image: ldez/traefik-certs-dumper:v2.7.0
     entrypoint: sh -c 'apk add jq ; while ! [ -e /data/acme.json ] || ! [ `jq ".Certificates | length" /data/acme.json` != 0 ]; do sleep 1 ; done && traefik-certs-dumper file --watch --version v2 --source /data/acme.json --dest /data/certs-dump'
+    depends_on:
+      - traefik
     volumes:
       - ./containers/certs:/data
+
+  rancher:
+    container_name: ogontaro_rancher
+    image: rancher/rancher:v2.4.8
+    restart: unless-stopped
+    depends_on:
+      - traefik
+    volumes:
+      - ./containers/rancher/volume:/var/lib/rancher
+    labels:
+      - traefik.http.routers.rancher.rule=Host(`rancher.ogontaro.com`)
+      - traefik.http.services.rancher.loadbalancer.server.port=80
+      - ./containers/certs/certs-dump/ogontaro.com.crt:/etc/rancher/ssl/cert.pem
+      - ./containers/certs/certs-dump/ogontaro.com.key:/etc/rancher/ssl/key.pem
+      - ./containers/certs/certs-dump/letsencrypt.key:/etc/rancher/ssl/cacerts.pem
+
+networks:
+  macvlan:
+    driver: macvlan
+    driver_opts:
+      parent: eno1
+    ipam:
+      config:
+        - subnet: 192.168.18.0/24
+          gateway: 192.168.18.1
