@@ -10,31 +10,24 @@ entryPoints:
     address: :443
     http:
       tls:
-        certResolver: ogontaro
         domains:
           - main: "ogontaro.com"
             sans:
               - "*.ogontaro.com"
+
   ssh:
     address: :22
   sshudp:
     address: :22/udp
 
 providers:
-  docker: {}
-
-certificatesResolvers:
-  ogontaro:
-    acme:
-      email: "uchigane.ryotaro@gmail.com"
-      storage: "/certs/acme.json"
-#      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
-      dnsChallenge:
-        provider: route53
-        delayBeforeCheck: 0
+  docker:
+    exposedByDefault: false
+  file:
+    filename: /etc/traefik//dynamic.yml
 
 api:
   dashboard: true
   insecure: true
 
-logLevel: DEBUG
+#logLevel: DEBUG
