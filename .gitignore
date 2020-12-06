@@ -1,7 +1,2 @@
 .env
-
-containers/certs/**
-!containers/certs/.keep
-
-containers/rancher/volume/**
-!containers/rancher/volume/.keep
+.idea 

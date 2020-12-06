@@ -12,6 +12,24 @@ http:
 #        users:
 #          - "raf:$apr1$MTqfVwiE$FKkzT5ERGFqwH9f3uipxA1"
 
+  routers:
+    esxi:
+      rule: "Host(`esxi.ogontaro.com`)"
+      service: "esxi"
+    rancher:
+      rule: "Host(`rancher.ogontaro.com`)"
+      service: "rancher"
+
+  services:
+    esxi:
+      loadBalancer:
+        servers:
+          - url: "https://192.168.18.101:443"
+    rancher:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.18.26:80"
+
 tls:
   options:
     default:

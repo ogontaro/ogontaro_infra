@@ -1,4 +1,4 @@
-version: "3.8"
+version: "3.7"
 
 services:
   traefik:
@@ -7,16 +7,7 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
-    networks:
-      default:
-      macvlan:
-        ipv4_address: 192.168.18.199
-    ports:
-      - "80:80"
-      - "443:443"
-      - "2222:22"
-      # The Web UI (enabled by --api.insecure=true)
-      - "8080:8080"
+    network_mode: host
     env_file:
       - .env
     volumes:
@@ -30,7 +21,7 @@ services:
 
   certbot:
     image: certbot/dns-route53
-    container_name: certbot
+    container_name: ogontaro_certbot
     volumes:
       - ./containers/certs/:/etc/letsencrypt/
     restart: unless-stopped
@@ -39,26 +30,8 @@ services:
     env_file:
       - .env
 
-  rancher:
-    container_name: ogontaro_rancher
-    image: rancher/rancher:v2.4.8
-    restart: unless-stopped
-    depends_on:
-      - traefik
-    volumes:
-      - ./containers/rancher/volume:/var/lib/rancher
+  whoami:
+    image: traefik/whoami
     labels:
-      - traefik.enable=true
-      - traefik.http.routers.rancher.rule=Host(`rancher.ogontaro.com`)
-      - traefik.http.services.rancher.loadbalancer.server.port=80
-      - ./containers/certs/:/certs/:/etc/rancher/ssl/
-
-networks:
-  macvlan:
-    driver: macvlan
-    driver_opts:
-      parent: eno1
-    ipam:
-      config:
-        - subnet: 192.168.18.0/24
-          gateway: 192.168.18.1
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.ogontaro.com`)"

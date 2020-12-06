@@ -15,11 +15,6 @@ entryPoints:
             sans:
               - "*.ogontaro.com"
 
-  ssh:
-    address: :22
-  sshudp:
-    address: :22/udp
-
 providers:
   docker:
     exposedByDefault: false
@@ -30,4 +25,4 @@ api:
   dashboard: true
   insecure: true
 
-#logLevel: DEBUG
+logLevel: DEBUG
