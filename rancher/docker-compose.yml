@@ -6,6 +6,7 @@ services:
     restart: unless-stopped
     container_name: master
     privileged: true
+    command: --no-cacerts
     ports:
       - 80:80
       - 443:443
