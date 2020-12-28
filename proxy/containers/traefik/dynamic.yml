@@ -19,6 +19,9 @@ http:
     rancher:
       rule: "Host(`rancher.ogontaro.com`)"
       service: "rancher"
+    gitlab:
+      rule: "Host(`gitlab.ogontaro.com`)"
+      service: "gitlab"
 
   services:
     esxi:
@@ -29,6 +32,25 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.18.26:80"
+    gitlab:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.18.25:31685/"
+
+
+tcp:
+  routers:
+    ssh_for_gitlab:
+      entryPoints:
+        - "ssh_for_gitlab"
+      rule: "HostSNI(`*`)"
+      service: ssh_for_gitlab
+
+  services:
+    ssh_for_gitlab:
+      loadBalancer:
+        servers:
+          - address: "192.168.18.25:31431"
 
 tls:
   options:

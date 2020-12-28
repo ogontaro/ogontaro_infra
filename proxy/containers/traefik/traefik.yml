@@ -14,6 +14,8 @@ entryPoints:
           - main: "ogontaro.com"
             sans:
               - "*.ogontaro.com"
+  ssh_for_gitlab:
+    address: :2222
 
 providers:
   docker:
