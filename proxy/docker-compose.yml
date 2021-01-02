@@ -23,10 +23,9 @@ services:
     image: certbot/dns-route53
     container_name: ogontaro_certbot
     volumes:
-      - ./containers/certs/:/etc/letsencrypt/
+      - ./containers/certs/:/etc/letsencrypt/certs/
     restart: unless-stopped
-    entrypoint: /bin/sh -c "trap exit TERM; while :; do certbot renew --dns-route53 --agree-tos -m ${LETSENCRIPT_REGISTER_EMAIL} -d ogontaro.com -d *.ogontaro.com ; sleep 12h & wait $${!}; done;"
-#    entrypoint: /bin/sh -c "trap exit TERM; while :; do certbot certonly --dns-route53 --agree-tos -m ${LETSENCRIPT_REGISTER_EMAIL} -d ogontaro.com -d *.ogontaro.com; sleep 12h & wait $${!}; done;"
+    entrypoint: /bin/sh -c "certbot certonly --dns-route53 --agree-tos -m ${LETSENCRIPT_REGISTER_EMAIL} -d ogontaro.com -d *.ogontaro.com ; trap exit TERM; while :; do certbot renew --dns-route53 ; cp /etc/letsencrypt/live/ogontaro.com/*.pem /etc/letsencrypt/certs ; sleep 12h & wait $${!}; done;"
     env_file:
       - .env
 

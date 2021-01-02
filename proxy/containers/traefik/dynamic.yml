@@ -22,6 +22,9 @@ http:
     gitlab:
       rule: "Host(`gitlab.ogontaro.com`)"
       service: "gitlab"
+    registry:
+      rule: "Host(`registry.ogontaro.com`)"
+      service: "gitlab"
 
   services:
     esxi:
@@ -36,7 +39,10 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.18.25:31685/"
-
+    registry:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.18.25:30257/"
 
 tcp:
   routers:
@@ -66,5 +72,5 @@ tls:
   stores:
     default:
       defaultCertificate:
-        certFile: /certs/live/ogontaro.com/fullchain.pem
-        keyFile: /certs/live/ogontaro.com/privkey.pem
+        certFile: /certs/fullchain.pem
+        keyFile: /certs/privkey.pem
